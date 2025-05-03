@@ -1,0 +1,10 @@
+#root {
+  display: flex;
+  flex-direction: row;
+  width: 80vw;
+  height: 45vw;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  font-size: 1.5vw;
+}
