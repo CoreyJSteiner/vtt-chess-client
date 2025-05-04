@@ -1,0 +1,52 @@
+#join-screen {
+    display: flex;
+    flex-direction: column;
+    border: 0.1rem solid #fff;
+    font-size: 1vw;
+    justify-content: space-between;
+}
+
+#join-screen input {
+    display: block;
+    text-align: left;
+    background-color: #7b7b7b;
+    padding: 0.1rem;
+    height: 4rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow: auto;
+}
+
+#join-screen textarea {
+    display: block;
+    text-align: center;
+    background-color: #7b7b7b;
+    border: 0.1rem solid #fff;
+    padding-top: 0.15rem;
+    padding-bottom: 0.1.5rem;
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+    height: 2vw;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow: auto;
+}
+
+
+#join-screen button {
+    background-color: #44486b;
+    border: 0;
+    padding: 0.2rem;
+    height: 2rem;
+    font-weight: bolder;
+    font-size: 1rem;
+}
+
+#join-screen button:hover {
+    background-color: #646995;
+}
+
+#join-screen button:active {
+    background-color: #646995;
+    font-size: 0.9rem;
+}

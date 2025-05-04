@@ -6,7 +6,7 @@ type ChatProps = {
     submitMsgHandler: (input: string) => void
 }
 
-const Chat: React.FC<ChatProps> = ({messages, submitMsgHandler}) => {
+const Chat: React.FC<ChatProps> = ({ messages, submitMsgHandler }) => {
     const [input, setInput] = useState<string>('')
 
     const sendInput = () => {
@@ -15,22 +15,22 @@ const Chat: React.FC<ChatProps> = ({messages, submitMsgHandler}) => {
     }
 
     const handleEnterKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === 'Enter'){
+        if (e.key === 'Enter') {
             sendInput()
-        } 
+        }
     }
 
-    return(
+    return (
         <div id='chat'>
             <ul>
                 {
-                messages.map((message: string, index: number) =>
-                    <li key={ index }>{ message }</li>
-                )
+                    messages.map((message: string, index: number) =>
+                        <li key={index}>{message}</li>
+                    )
                 }
             </ul>
             <div id='chat-input-container'>
-                <textarea value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleEnterKeyDown}/>
+                <textarea value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleEnterKeyDown} />
                 <button onClick={sendInput}>Send</button>
             </div>
         </div>
