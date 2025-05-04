@@ -1,5 +1,21 @@
 #chat {
+    display: flex;
+    flex-direction: column;
     width: 20%;
     height: 80%;
     border: 0.1rem solid #fff;
+    font-size: 1vw;
+    justify-content: space-between;
 }
+
+#chat ul {
+    padding: 1vw;
+    margin: 0;
+    list-style: none;
+}
+
+#chat li {
+    text-align: left;
+}
+
+/* #chat.chat-input {} */
