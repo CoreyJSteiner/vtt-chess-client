@@ -26,7 +26,7 @@ const Board: React.FC = () => {
   }, [])
 
   return (
-    <div id='game-board' className='s' ref={setContainerElement}>
+    <div id='game-board' ref={setContainerElement}>
       {containerElement &&<Application 
         resizeTo={containerElement}
         autoDensity={true}

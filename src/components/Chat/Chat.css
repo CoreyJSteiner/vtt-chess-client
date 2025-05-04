@@ -4,6 +4,7 @@
     width: 20%;
     height: 100%;
     border: 0.1rem solid #fff;
+    border-collapse: collapse;
     font-size: 1vw;
     justify-content: space-between;
 }
