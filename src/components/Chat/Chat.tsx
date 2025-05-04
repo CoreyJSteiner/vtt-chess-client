@@ -22,8 +22,8 @@ const Chat: React.FC<ChatProps> = ({messages, submitMsgHandler}) => {
                 )
                 }
             </ul>
-            <div id='chat-input'>
-                <input type='text' value={input} onChange={(e) => setInput(e.target.value)}/>
+            <div id='chat-input-container'>
+                <textarea value={input} onChange={(e) => setInput(e.target.value)}/>
                 <button onClick={handleClick}>Send</button>
             </div>
         </div>
