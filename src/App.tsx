@@ -32,8 +32,8 @@ const App: React.FC = () => {
 
   return (
     <>
-      <Board />
-      <Chat messages={messages} submitMsgHandler={submitHandler}/>
+        <Board />
+        <Chat messages={messages} submitMsgHandler={submitHandler}/>
     </>
   )
 }
