@@ -2,6 +2,7 @@ import './Board.css'
 import {
   Application,
   extend,
+  useTick
 } from '@pixi/react'
 import {
   Container,
@@ -20,14 +21,6 @@ extend({
 const Board: React.FC = () => {
   const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null)
   const [texture, setTexture] = useState(null);
-
-  //Test Graphic
-  // const drawCallback = useCallback((graphics: Graphics) => {
-  //   graphics.clear()
-  //   graphics.setFillStyle({ color: 'red' })
-  //   graphics.rect(0, 0, 50, 50)
-  //   graphics.fill()
-  // }, [])
 
   useEffect(() => {
     const loadTexture = async () => {
@@ -54,9 +47,6 @@ const Board: React.FC = () => {
             anchor={0.5}
           />
         )}
-        {/* <pixiContainer x={100} y={100}>
-          <pixiGraphics draw={drawCallback} />
-        </pixiContainer> */}
       </Application>}
     </div>
   )
