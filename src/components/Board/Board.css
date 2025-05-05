@@ -3,4 +3,6 @@
     height: 100%;
     border: 0.1rem solid #fff;
     border-right: none;
+    min-width: 200px;
+    min-height: 100px;
 }

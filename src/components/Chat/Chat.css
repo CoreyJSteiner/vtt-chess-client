@@ -13,6 +13,8 @@
     padding: 1vw;
     margin: 0;
     list-style: none;
+    overflow: auto;
+    border-bottom: 0.1rem solid #fff;
 }
 
 #chat li {
