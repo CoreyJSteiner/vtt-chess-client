@@ -32,10 +32,13 @@ const Board: React.FC = () => {
       setTexture(tex);
 
       const handleResize = () => {
-        setWindowDimensions({
-          width: containerElement.offsetWidth || 0,
-          height: containerElement.offsetHeight || 0,
-        })
+        if (containerElement) {
+          setWindowDimensions({
+            width: containerElement.offsetWidth,
+            height: containerElement.offsetHeight,
+          })
+        }
+
       }
 
       if (containerElement) {

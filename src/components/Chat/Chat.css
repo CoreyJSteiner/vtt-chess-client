@@ -1,8 +1,8 @@
 #chat {
     display: flex;
     flex-direction: column;
-    width: 20%;
-    height: 100%;
+    width: inherit;
+    height: inherit;
     border: 0.1rem solid #fff;
     border-collapse: collapse;
     font-size: 1vw;
@@ -13,12 +13,18 @@
     padding: 1vw;
     margin: 0;
     list-style: none;
-    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow: scroll;
     border-bottom: 0.1rem solid #fff;
+    height: 100%;
 }
 
 #chat li {
     text-align: left;
+    white-space: pre-wrap;
+    word-break: break-word;
+    width: 100%;
 }
 
 #chat-input-container {

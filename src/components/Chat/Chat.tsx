@@ -1,5 +1,5 @@
 import './Chat.css'
-import { KeyboardEvent, useState } from 'react'
+import { KeyboardEvent, useState, useRef, useEffect } from 'react'
 
 type ChatProps = {
     messages: Array<string>,
@@ -8,6 +8,11 @@ type ChatProps = {
 
 const Chat: React.FC<ChatProps> = ({ messages, submitMsgHandler }) => {
     const [input, setInput] = useState<string>('')
+    const messageEndRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        messageEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, [messages])
 
     const sendInput = () => {
         setInput('')
@@ -22,12 +27,13 @@ const Chat: React.FC<ChatProps> = ({ messages, submitMsgHandler }) => {
 
     return (
         <div id='chat'>
-            <ul>
+            <ul id="chat-list">
                 {
                     messages.map((message: string, index: number) =>
                         <li key={index}>{message}</li>
                     )
                 }
+                <div ref={messageEndRef} />
             </ul>
             <div id='chat-input-container'>
                 <textarea value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleEnterKeyDown} />

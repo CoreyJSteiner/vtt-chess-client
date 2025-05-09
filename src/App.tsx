@@ -40,8 +40,10 @@ const App: React.FC = () => {
   return (joined ? (
     <>
       <h1>{`${room}: ${user}`}</h1>
-      <Board />
-      <Chat messages={messages} submitMsgHandler={submitHandler} />
+      <div id='main'>
+        <Board />
+        <Chat messages={messages} submitMsgHandler={submitHandler} />
+      </div>
     </>
   ) : (
     <>
