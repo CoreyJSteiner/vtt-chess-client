@@ -1,9 +1,10 @@
 import './App.css'
 import Board from './components/Board'
+import ButtonGeneric from './components/ButtonGeneric'
 import Chat from './components/Chat'
 import JoinScreen from './components/JoinScreen'
 import { socket } from './socket'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Array<string>>([])
@@ -11,9 +12,22 @@ const App: React.FC = () => {
   const [room, setRoom] = useState<string>('')
   const [joined, setJoined] = useState<boolean>(false)
 
+  const reqRefreshChat = useCallback(() => {
+    socket.emit('chat-reqRefresh', user)
+  }, [user])
+
+  useEffect(() => {
+    if (joined) reqRefreshChat()
+  }, [joined, reqRefreshChat])
+
   const onMessageIn = (message: string) => {
     console.log(message)
     setMessages(prev => [...prev, message])
+  }
+
+  const onRefreshChat = (messages: Array<string>) => {
+    console.log(messages)
+    setMessages(messages)
   }
 
   const submitHandler = (input: string) => {
@@ -32,6 +46,8 @@ const App: React.FC = () => {
 
   useEffect(() => {
     socket.on('chat-serverOrigin', onMessageIn)
+    socket.on('chat-refresh', onRefreshChat)
+
     return () => {
       socket.off('chat-serverOrigin', onMessageIn)
     }
@@ -40,6 +56,7 @@ const App: React.FC = () => {
   return (joined ? (
     <>
       <h1>{`${room}: ${user}`}</h1>
+      <ButtonGeneric buttonText='Refresh' clickFunction={() => reqRefreshChat()} />
       <div id='main'>
         <Board />
         <Chat messages={messages} submitMsgHandler={submitHandler} />
