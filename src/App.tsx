@@ -47,6 +47,10 @@ const App: React.FC = () => {
   useEffect(() => {
     socket.on('chat-serverOrigin', onMessageIn)
     socket.on('chat-refresh', onRefreshChat)
+    socket.on('chat-join-callback', (response) => {
+      setUser(response.userName)
+      setRoom(response.roomName)
+    })
 
     return () => {
       socket.off('chat-serverOrigin', onMessageIn)
