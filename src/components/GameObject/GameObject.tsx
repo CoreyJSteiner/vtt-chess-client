@@ -17,16 +17,18 @@ type GameObjectProps = {
     texture: Texture,
     x: number,
     y: number,
-    anchor: number
+    anchor: number,
+    scale: number
 }
 
-const GameObject: React.FC<GameObjectProps> = ({ id, texture, x, y, anchor }) => {
+const GameObject: React.FC<GameObjectProps> = ({ id, texture, x, y, anchor, scale }) => {
     return (<pixiSprite
         key={id}
         texture={texture}
         x={x || 0}
         y={y || 0}
         anchor={anchor || 0.5}
+        scale={scale}
     />)
 }
 

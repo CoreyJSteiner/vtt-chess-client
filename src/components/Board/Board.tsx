@@ -11,7 +11,7 @@ import {
   Texture,
   Assets
 } from 'pixi.js'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import GameObject from '../GameObject'
 
 extend({
@@ -30,9 +30,18 @@ const Board: React.FC = () => {
     height: 0,
   })
 
+  const scaleFactor = useMemo(() => {
+    if (!boardTexture) return 1
+    return Math.min(
+      windowDimensions.width / boardTexture.width,
+      windowDimensions.height / boardTexture.height
+    )
+  }, [windowDimensions.width, windowDimensions.height, boardTexture])
+
   useEffect(() => {
     const loadTexture = async (fileName: string, setTexture: (texture: Texture) => void) => {
       const tex: Texture = await Assets.load(fileName)
+      tex.source.scaleMode = 'nearest'
       setTexture(tex)
 
       const handleResize = () => {
@@ -73,6 +82,7 @@ const Board: React.FC = () => {
             x={windowDimensions.width / 2}
             y={windowDimensions.height / 2}
             anchor={0.5}
+            scale={scaleFactor}
           />
         )}
 
@@ -83,6 +93,7 @@ const Board: React.FC = () => {
             x={windowDimensions.width / 2}
             y={windowDimensions.height / 2}
             anchor={0.5}
+            scale={scaleFactor}
           />
         )}
       </Application>}
