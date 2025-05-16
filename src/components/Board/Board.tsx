@@ -8,6 +8,7 @@ import {
   Container,
   Graphics,
   Sprite,
+  Texture,
   Assets
 } from 'pixi.js'
 import { useEffect, useState } from 'react'
@@ -15,21 +16,23 @@ import { useEffect, useState } from 'react'
 extend({
   Container,
   Graphics,
-  Sprite
+  Sprite,
+  Texture
 })
 
 const Board: React.FC = () => {
   const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null)
-  const [texture, setTexture] = useState(null)
+  const [boardTexture, setBoardTexture] = useState<Texture>()
+  const [pawnTexture, setPawnTexture] = useState<Texture>()
   const [windowDimensions, setWindowDimensions] = useState({
     width: 0,
     height: 0,
   })
 
   useEffect(() => {
-    const loadTexture = async () => {
-      const tex = await Assets.load('src/assets/board-generic.png');
-      setTexture(tex);
+    const loadTexture = async (fileName: string, setTexture: (texture: Texture) => void) => {
+      const tex: Texture = await Assets.load(fileName)
+      setTexture(tex)
 
       const handleResize = () => {
         if (containerElement) {
@@ -50,7 +53,8 @@ const Board: React.FC = () => {
       return () => window.removeEventListener('resize', handleResize)
     };
 
-    loadTexture()
+    loadTexture('src/assets/board-generic.png', setBoardTexture)
+    loadTexture('src/assets/pawn.png', setPawnTexture)
   }, [containerElement])
 
   return (
@@ -61,9 +65,18 @@ const Board: React.FC = () => {
         autoDensity={true}
         resolution={window.devicePixelRatio || 1}
       >
-        {texture && (
+        {boardTexture && (
           <pixiSprite
-            texture={texture}
+            texture={boardTexture}
+            x={windowDimensions.width / 2}
+            y={windowDimensions.height / 2}
+            anchor={0.5}
+          />
+        )}
+
+        {pawnTexture && (
+          <pixiSprite
+            texture={pawnTexture}
             x={windowDimensions.width / 2}
             y={windowDimensions.height / 2}
             anchor={0.5}

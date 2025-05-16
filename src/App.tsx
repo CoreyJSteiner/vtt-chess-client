@@ -1,6 +1,6 @@
 import './App.css'
 import Board from './components/Board'
-import ButtonGeneric from './components/ButtonGeneric'
+// import ButtonGeneric from './components/ButtonGeneric'
 import Chat from './components/Chat'
 import JoinScreen from './components/JoinScreen'
 import { socket } from './socket'
@@ -60,7 +60,7 @@ const App: React.FC = () => {
   return (joined ? (
     <>
       <h1>{`${room}: ${user}`}</h1>
-      <ButtonGeneric buttonText='Refresh' clickFunction={() => reqRefreshChat()} />
+      {/* <ButtonGeneric buttonText='Refresh' clickFunction={() => reqRefreshChat()} /> */}
       <div id='main'>
         <Board />
         <Chat messages={messages} submitMsgHandler={submitHandler} />
