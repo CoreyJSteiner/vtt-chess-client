@@ -12,6 +12,7 @@ import {
   Assets
 } from 'pixi.js'
 import { useEffect, useState } from 'react'
+import GameObject from '../GameObject'
 
 extend({
   Container,
@@ -66,7 +67,8 @@ const Board: React.FC = () => {
         resolution={window.devicePixelRatio || 1}
       >
         {boardTexture && (
-          <pixiSprite
+          <GameObject
+            id={crypto.randomUUID()}
             texture={boardTexture}
             x={windowDimensions.width / 2}
             y={windowDimensions.height / 2}
@@ -75,7 +77,8 @@ const Board: React.FC = () => {
         )}
 
         {pawnTexture && (
-          <pixiSprite
+          <GameObject
+            id={crypto.randomUUID()}
             texture={pawnTexture}
             x={windowDimensions.width / 2}
             y={windowDimensions.height / 2}
