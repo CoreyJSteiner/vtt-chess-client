@@ -4,13 +4,14 @@ import Board from './components/Board'
 import Chat from './components/Chat'
 import JoinScreen from './components/JoinScreen'
 import { socket } from './socket'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 const App: React.FC = () => {
   const [messages, setMessages] = useState<Array<string>>([])
   const [user, setUser] = useState<string>('')
   const [room, setRoom] = useState<string>('')
   const [joined, setJoined] = useState<boolean>(false)
+  const reconnectIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const reqRefreshChat = useCallback(() => {
     socket.emit('chat-reqRefresh', user)
@@ -45,15 +46,58 @@ const App: React.FC = () => {
   }
 
   useEffect(() => {
+    const clearIntervalOnReconnect = (): void => {
+      if (reconnectIntervalRef.current) {
+        console.log('blurg')
+        clearInterval(reconnectIntervalRef.current)
+        socket.emit('username set', user)
+        socket.emit('room set', room)
+        reqRefreshChat()
+        console.log(`Reconnected!`)
+      }
+    }
+
+    socket.on("connect", clearIntervalOnReconnect)
+
+    return (): void => {
+      socket.off('connect', clearIntervalOnReconnect)
+    }
+  }, [user, room, reqRefreshChat])
+
+  useEffect(() => {
     socket.on('chat-serverOrigin', onMessageIn)
     socket.on('chat-refresh', onRefreshChat)
-    socket.on('chat-join-callback', (response) => {
+
+    type JoinCallbackResp = {
+      userName: string,
+      roomName: string
+    }
+    const setUserAndRoom = (response: JoinCallbackResp): void => {
       setUser(response.userName)
       setRoom(response.roomName)
+    }
+
+    socket.on('chat-join-callback', (response: JoinCallbackResp) => setUserAndRoom(response))
+
+    socket.on("disconnect", (reason) => {
+      console.log(`Disconnected at ${new Date().toLocaleTimeString()}:`, reason)
+
+      if (reason === "transport error") {
+        if (reconnectIntervalRef.current) clearInterval(reconnectIntervalRef.current)
+
+        reconnectIntervalRef.current = setInterval(() => {
+          const timestamp = new Date().toLocaleTimeString()
+          console.log(`Reconnect attempt at ${timestamp}...`)
+
+          socket.connect() // Attempt reconnect
+        }, 5000) // Try every 5 seconds
+      }
     })
 
     return (): void => {
       socket.off('chat-serverOrigin', onMessageIn)
+      socket.off('chat-refresh', onRefreshChat)
+      socket.off('chat-join-callback', setUserAndRoom)
     }
   }, [])
 
