@@ -20,23 +20,23 @@ const App: React.FC = () => {
     if (joined) reqRefreshChat()
   }, [joined, reqRefreshChat])
 
-  const onMessageIn = (message: string) => {
+  const onMessageIn = (message: string): void => {
     console.log(message)
     setMessages(prev => [...prev, message])
   }
 
-  const onRefreshChat = (messages: Array<string>) => {
+  const onRefreshChat = (messages: Array<string>): void => {
     console.log(messages)
     setMessages(messages)
   }
 
-  const submitHandler = (input: string) => {
+  const submitHandler = (input: string): void => {
     if (input) {
       socket.emit('chat-clientOrigin', input)
     }
   }
 
-  const handleJoin = (username: string, roomname: string) => {
+  const handleJoin = (username: string, roomname: string): void => {
     setUser(username)
     setRoom(roomname)
     socket.emit('username set', username)
@@ -52,7 +52,7 @@ const App: React.FC = () => {
       setRoom(response.roomName)
     })
 
-    return () => {
+    return (): void => {
       socket.off('chat-serverOrigin', onMessageIn)
     }
   }, [])

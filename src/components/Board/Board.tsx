@@ -1,4 +1,6 @@
 import './Board.css'
+import { socket } from '../../socket'
+import type { UUID } from 'crypto'
 import {
   Application,
   extend,
@@ -11,8 +13,24 @@ import {
   Texture,
   Assets
 } from 'pixi.js'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import GameObject from '../GameObject'
+
+type GameObjectProps = {
+  id: UUID,
+  texture: Texture,
+  x: number,
+  y: number,
+  anchor: number,
+  scale: number,
+  draggable?: boolean
+}
+
+type SocketGameObject = {
+  id: UUID
+  x: number
+  y: number
+}
 
 extend({
   Container,
@@ -25,6 +43,7 @@ const Board: React.FC = () => {
   const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null)
   const [boardTexture, setBoardTexture] = useState<Texture>()
   const [pawnTexture, setPawnTexture] = useState<Texture>()
+  const [gameObjects, setGameObjects] = useState<Array<GameObjectProps>>([])
   const [windowDimensions, setWindowDimensions] = useState({
     width: 0,
     height: 0,
@@ -38,13 +57,39 @@ const Board: React.FC = () => {
     )
   }, [windowDimensions.width, windowDimensions.height, boardTexture])
 
+  const onBoardRefresh = useCallback((socketGameObjects: Record<UUID, SocketGameObject>) => {
+    console.log('board refresh')
+    if (!pawnTexture) return
+
+    const objKeys = Object.keys(socketGameObjects)
+
+    const newGameObjProps: Array<GameObjectProps> = objKeys.map((objKey: string) => {
+      const obj = socketGameObjects[objKey as UUID]
+      const gameObjProps: GameObjectProps = {
+        id: obj.id,
+        x: obj.x,
+        y: obj.y,
+        texture: pawnTexture,
+        anchor: 0.5,
+        scale: scaleFactor,
+        draggable: true
+      }
+
+      return gameObjProps
+    })
+
+    setGameObjects(newGameObjProps)
+  }, [pawnTexture, scaleFactor])
+
   useEffect(() => {
+    socket.on('board-refresh', onBoardRefresh)
+
     const loadTexture = async (fileName: string, setTexture: (texture: Texture) => void) => {
       const tex: Texture = await Assets.load(fileName)
       tex.source.scaleMode = 'nearest'
       setTexture(tex)
 
-      const handleResize = () => {
+      const handleResize = (): void => {
         if (containerElement) {
           setWindowDimensions({
             width: containerElement.offsetWidth,
@@ -60,12 +105,12 @@ const Board: React.FC = () => {
 
       handleResize()
 
-      return () => window.removeEventListener('resize', handleResize)
+      return (): void => window.removeEventListener('resize', handleResize)
     };
 
     loadTexture('src/assets/board-generic.png', setBoardTexture)
     loadTexture('src/assets/pawn.png', setPawnTexture)
-  }, [containerElement])
+  }, [containerElement, onBoardRefresh])
 
   return (
     <div id='game-board' ref={setContainerElement}>
@@ -87,14 +132,18 @@ const Board: React.FC = () => {
         )}
 
         {pawnTexture && (
-          <GameObject
-            id={crypto.randomUUID()}
-            texture={pawnTexture}
-            x={windowDimensions.width / 2}
-            y={windowDimensions.height / 2}
-            anchor={0.5}
-            scale={scaleFactor}
-          />
+          gameObjects.map((gameObj) =>
+            <GameObject
+              id={gameObj.id}
+              key={gameObj.id}
+              texture={pawnTexture}
+              x={gameObj.x ? (windowDimensions.width / 2) + gameObj.x * scaleFactor : windowDimensions.width / 2}
+              y={gameObj.y ? (windowDimensions.height / 2) + gameObj.y * scaleFactor : windowDimensions.height / 2}
+              anchor={0.5}
+              scale={scaleFactor}
+              draggable={true}
+            />
+          )
         )}
       </Application>}
     </div>

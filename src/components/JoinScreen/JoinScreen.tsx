@@ -9,7 +9,7 @@ const JoinScreen: React.FC<JoinScreenProps> = ({ joinHandler }) => {
     const [inputUsername, setInputUsername] = useState<string>('')
     const [inputRoomname, setInputRoomname] = useState<string>('')
 
-    const handleEnterKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    const handleEnterKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
         if (e.key === 'Enter') {
             joinHandler(inputUsername, inputRoomname)
         }

@@ -14,13 +14,14 @@ const Chat: React.FC<ChatProps> = ({ messages, submitMsgHandler }) => {
         messageEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }, [messages])
 
-    const sendInput = () => {
-        setInput('')
+    const sendInput = (): void => {
+        setInput("")
         submitMsgHandler(input)
     }
 
-    const handleEnterKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    const handleEnterKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>): void => {
         if (e.key === 'Enter') {
+            e.preventDefault()
             sendInput()
         }
     }
