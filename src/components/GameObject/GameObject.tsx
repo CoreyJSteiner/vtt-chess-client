@@ -9,12 +9,13 @@ type GameObjectProps = {
     texture: Texture,
     x: number,
     y: number,
+    zOverride?: number,
     anchor: number,
     scale: number,
     draggable?: boolean
 }
 
-const GameObject: React.FC<GameObjectProps> = ({ id, texture, x, y, anchor, scale, draggable = false }) => {
+const GameObject: React.FC<GameObjectProps> = ({ id, texture, x, y, zOverride, anchor, scale, draggable = false }) => {
     const [xDiff, setXDiff] = useState<number>(0)
     const [yDiff, setYDiff] = useState<number>(0)
     const spriteRef = useRef<Sprite>(null)
@@ -53,6 +54,7 @@ const GameObject: React.FC<GameObjectProps> = ({ id, texture, x, y, anchor, scal
         texture={texture}
         x={x + xDiff}
         y={y + yDiff}
+        zIndex={zOverride ? zOverride : y}
         anchor={anchor || 0.5}
         scale={scale}
     />)

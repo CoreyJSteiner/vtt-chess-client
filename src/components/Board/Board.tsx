@@ -126,6 +126,7 @@ const Board: React.FC = () => {
             texture={boardTexture}
             x={windowDimensions.width / 2}
             y={windowDimensions.height / 2}
+            zOverride={-9999}
             anchor={0.5}
             scale={scaleFactor}
           />
