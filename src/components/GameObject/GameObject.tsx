@@ -1,45 +1,94 @@
 import type { UUID } from 'crypto'
 import { useEffect, useRef, useState } from 'react'
 import { extend } from '@pixi/react'
-import { Sprite, Texture } from 'pixi.js'
-extend({ Sprite, Texture })
+import { Assets, Container, Polygon, Sprite, Texture } from 'pixi.js'
+import { createPolygonHitbox } from '../Utils'
+extend({ Sprite, Texture, Container })
+
 
 type GameObjectProps = {
     id: UUID,
-    texture: Texture,
+    textureBasePath: string,
+    textureOverPath?: string,
     x: number,
     y: number,
     zOverride?: number,
-    anchor: number,
+    anchor?: number,
     scale: number,
     draggable?: boolean
 }
 
-const GameObject: React.FC<GameObjectProps> = ({ id, texture, x, y, zOverride, anchor, scale, draggable = false }) => {
+const GameObject: React.FC<GameObjectProps> = ({ id, textureBasePath, textureOverPath, x, y, zOverride, anchor, scale, draggable = false }) => {
     const [xDiff, setXDiff] = useState<number>(0)
     const [yDiff, setYDiff] = useState<number>(0)
-    const spriteRef = useRef<Sprite>(null)
+    const [dragging, setDragging] = useState<boolean>(false)
+    const [baseTexture, setBaseTexture] = useState<Texture>()
+    const [overTexture, setOverTexture] = useState<Texture>()
+    const [hitbox, setHitBox] = useState<Polygon>()
+    const gameObjectRef = useRef<Container>(null)
+    const overRef = useRef<Sprite>(null)
+    const baseRef = useRef<Sprite>(null)
 
     useEffect(() => {
-        const sprite = spriteRef.current
-
-        const handleDrag = (): void => {
-            console.log(`Is draggable ${id}: ${draggable}`)
+        const loadTexture = async (fileName: string, setTexture: (texture: Texture) => void): Promise<void> => {
+            const tex: Texture = await Assets.load(fileName)
+            tex.source.scaleMode = 'nearest'
+            setTexture(tex)
         }
 
-        if (sprite && draggable) {
-            sprite.eventMode = 'static'
-            sprite.on('pointerdown', handleDrag)
+        loadTexture(textureBasePath, setBaseTexture)
+        if (textureOverPath) loadTexture(textureOverPath, setOverTexture)
+
+    }, [textureBasePath, textureOverPath])
+
+    useEffect(() => {
+        const createHitBox = async (fileName: string, setHitBox: (polygon: Polygon) => void): Promise<void> => {
+            const polygonOutline: Polygon = new Polygon(
+                await createPolygonHitbox(fileName)
+            )
+            setHitBox(polygonOutline)
+            // gameObjectRef.current?.addChild(polygonOutline)
+        }
+
+        let hitBoxTexturePath = textureBasePath
+        if (textureOverPath) {
+            hitBoxTexturePath = textureOverPath
+        }
+        createHitBox(hitBoxTexturePath, setHitBox)
+    }, [textureBasePath, textureOverPath])
+
+
+    useEffect(() => {
+        const handleDrag = (): void => {
+            console.log(`Is draggable ${id}: ${draggable}`)
+            console.dir(hitbox, { depth: null })
+            const details = {
+                id: id,
+                sprite: gameObjectRef,
+                mask: baseRef
+            }
+            console.dir(details, { depth: null })
+
+            setDragging(true)
+        }
+
+        const gameObjectHitbox = gameObjectRef.current
+
+        if (gameObjectHitbox && draggable && hitbox) {
+            gameObjectHitbox.eventMode = 'static'
+            gameObjectHitbox.cursor = 'pointer'
+            console.dir(hitbox, { depth: null })
+            gameObjectHitbox.hitArea = hitbox
+            gameObjectHitbox.on('pointerdown', handleDrag)
         }
 
         return (): void => {
-            if (sprite) {
-                sprite.off('pointerdown', handleDrag)
+            if (gameObjectHitbox) {
+                gameObjectHitbox.off('pointerdown', handleDrag)
             }
         }
-    }, [id, draggable])
+    }, [id, draggable, hitbox])
 
-    //Reset position diff on x/y prop change
     useEffect(() => {
         setXDiff(0)
     }, [x])
@@ -48,35 +97,29 @@ const GameObject: React.FC<GameObjectProps> = ({ id, texture, x, y, zOverride, a
         setYDiff(0)
     }, [y])
 
-    return (<pixiSprite
-        key={id}
-        ref={spriteRef}
-        texture={texture}
-        x={x + xDiff}
-        y={y + yDiff}
-        zIndex={zOverride ? zOverride : y}
-        anchor={anchor || 0.5}
-        scale={scale}
-    />)
+    return (
+        <pixiContainer
+            key={id}
+            ref={gameObjectRef}
+            x={x + xDiff}
+            y={y + yDiff}
+            zIndex={zOverride ? zOverride : y}
+            anchor={anchor}
+            scale={scale}>
+            {baseTexture && <pixiSprite
+                ref={baseRef}
+                texture={baseTexture}
+                anchor={anchor}
+            >
+                {overTexture && <pixiSprite
+                    ref={overRef}
+                    texture={overTexture}
+                    anchor={anchor}
+                    y={dragging ? -5 : 0}
+                />}
+            </pixiSprite>}
+        </pixiContainer>
+    )
 }
 
 export default GameObject
-
-
-// class GameObject {
-//   id: UUID
-//   sprite: Sprite
-
-//   constructor(id: UUID) {
-//     this.id = id ? id : crypto.randomUUID()
-//     this.sprite = null
-//   }
-
-//   initSprite(texture: Texture, x: number, y: number) {
-//     this.sprite = new Sprite({ texture, x, y })
-
-//     return (
-
-//     )
-//   }
-// }

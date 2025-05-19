@@ -18,7 +18,8 @@ import GameObject from '../GameObject'
 
 type GameObjectProps = {
   id: UUID,
-  texture: Texture,
+  textureBasePath: string,
+  textureOverPath?: string,
   x: number,
   y: number,
   anchor: number,
@@ -41,25 +42,30 @@ extend({
 
 const Board: React.FC = () => {
   const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null)
-  const [boardTexture, setBoardTexture] = useState<Texture>()
-  const [pawnTexture, setPawnTexture] = useState<Texture>()
+  const [boardDimensions, setBoardDimensions] = useState<Array<number>>()
   const [gameObjects, setGameObjects] = useState<Array<GameObjectProps>>([])
+  const [boardPos, setBoardPos] = useState<Array<number>>([0, 0])
   const [windowDimensions, setWindowDimensions] = useState({
     width: 0,
     height: 0,
   })
 
   const scaleFactor = useMemo(() => {
-    if (!boardTexture) return 1
+    if (!boardDimensions) return 1
     return Math.min(
-      windowDimensions.width / boardTexture.width,
-      windowDimensions.height / boardTexture.height
+      windowDimensions.width / boardDimensions[0],
+      windowDimensions.height / boardDimensions[1]
     )
-  }, [windowDimensions.width, windowDimensions.height, boardTexture])
+  }, [windowDimensions.width, windowDimensions.height, boardDimensions])
+
+  // const scaledBoardPos = useMemo(() => {
+  //   if (!boardPos) return { x: 0, y: 0 }
+  //   console.dir({ x: boardPos[0] * scaleFactor, y: boardPos[1] * scaleFactor }, { depth: null })
+  //   return { x: boardPos[0] * scaleFactor, y: boardPos[1] * scaleFactor }
+  // }, [boardPos, scaleFactor])
 
   const onBoardRefresh = useCallback((socketGameObjects: Record<UUID, SocketGameObject>) => {
     console.log('board refresh')
-    if (!pawnTexture) return
 
     const objKeys = Object.keys(socketGameObjects)
 
@@ -69,7 +75,8 @@ const Board: React.FC = () => {
         id: obj.id,
         x: obj.x,
         y: obj.y,
-        texture: pawnTexture,
+        textureBasePath: 'assets/token-mask.png',
+        textureOverPath: 'assets/pawn.png',
         anchor: 0.5,
         scale: scaleFactor,
         draggable: true
@@ -79,38 +86,39 @@ const Board: React.FC = () => {
     })
 
     setGameObjects(newGameObjProps)
-  }, [pawnTexture, scaleFactor])
+  }, [scaleFactor])
+
+  useEffect(() => {
+    // console.dir(boardPos, { depth: null })
+    setBoardPos((prev: Array<number>) => [prev[0], Math.floor(windowDimensions.height / 4)])
+  }, [windowDimensions])
 
   useEffect(() => {
     socket.on('board-refresh', onBoardRefresh)
 
-    const loadTexture = async (fileName: string, setTexture: (texture: Texture) => void) => {
-      const tex: Texture = await Assets.load(fileName)
-      tex.source.scaleMode = 'nearest'
-      setTexture(tex)
+    const getBoardDimensions = async (): Promise<void> => {
+      const boardTex: Texture = await Assets.load(
+        'assets/board-generic.png'
+      )
+      setBoardDimensions([boardTex.width, boardTex.height])
+    }
 
-      const handleResize = (): void => {
-        if (containerElement) {
-          setWindowDimensions({
-            width: containerElement.offsetWidth,
-            height: containerElement.offsetHeight,
-          })
-        }
-
-      }
-
+    const handleResize = (): void => {
       if (containerElement) {
-        window.addEventListener('resize', handleResize)
+        setWindowDimensions({
+          width: containerElement.offsetWidth,
+          height: containerElement.offsetHeight,
+        })
       }
 
-      handleResize()
+    }
 
-      return (): void => window.removeEventListener('resize', handleResize)
-    };
-
-    loadTexture('src/assets/board-generic.png', setBoardTexture)
-    loadTexture('src/assets/pawn.png', setPawnTexture)
-  }, [containerElement, onBoardRefresh])
+    if (containerElement) {
+      window.addEventListener('resize', handleResize)
+    }
+    getBoardDimensions()
+    handleResize()
+  }, [containerElement, onBoardRefresh, windowDimensions.height])
 
   return (
     <div id='game-board' ref={setContainerElement}>
@@ -120,27 +128,26 @@ const Board: React.FC = () => {
         autoDensity={true}
         resolution={window.devicePixelRatio || 1}
       >
-        {boardTexture && (
+        {boardDimensions && (
           <GameObject
             id={crypto.randomUUID()}
-            texture={boardTexture}
-            x={windowDimensions.width / 2}
-            y={windowDimensions.height / 2}
+            textureBasePath={'assets/board-generic.png'}
+            x={boardPos[0]}
+            y={boardPos[1]}
             zOverride={-9999}
-            anchor={0.5}
             scale={scaleFactor}
           />
         )}
 
-        {pawnTexture && (
+        {gameObjects.length > 0 && (
           gameObjects.map((gameObj) =>
             <GameObject
               id={gameObj.id}
               key={gameObj.id}
-              texture={pawnTexture}
-              x={gameObj.x ? (windowDimensions.width / 2) + gameObj.x * scaleFactor : windowDimensions.width / 2}
-              y={gameObj.y ? (windowDimensions.height / 2) + gameObj.y * scaleFactor : windowDimensions.height / 2}
-              anchor={0.5}
+              textureBasePath={gameObj.textureBasePath}
+              textureOverPath={gameObj.textureOverPath}
+              x={boardPos[0] + (gameObj.x * scaleFactor)}
+              y={boardPos[1] + (gameObj.y * scaleFactor)}
               scale={scaleFactor}
               draggable={true}
             />

@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "sharp": "^0.34.1",
     "@pixi/react": "^8.0.1",
+    "marching-squares": "^1.0.0",
     "pixi.js": "^8.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -25,6 +27,8 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.26.1",
     "vite": "^6.3.1"
