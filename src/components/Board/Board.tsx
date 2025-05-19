@@ -89,7 +89,6 @@ const Board: React.FC = () => {
   }, [scaleFactor])
 
   useEffect(() => {
-    // console.dir(boardPos, { depth: null })
     setBoardPos((prev: Array<number>) => [prev[0], Math.floor(windowDimensions.height / 4)])
   }, [windowDimensions])
 
