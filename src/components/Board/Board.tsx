@@ -4,7 +4,6 @@ import type { UUID } from 'crypto'
 import {
   Application,
   extend,
-  // useTick
 } from '@pixi/react'
 import {
   Container,
@@ -57,12 +56,6 @@ const Board: React.FC = () => {
       windowDimensions.height / boardDimensions[1]
     )
   }, [windowDimensions.width, windowDimensions.height, boardDimensions])
-
-  // const scaledBoardPos = useMemo(() => {
-  //   if (!boardPos) return { x: 0, y: 0 }
-  //   console.dir({ x: boardPos[0] * scaleFactor, y: boardPos[1] * scaleFactor }, { depth: null })
-  //   return { x: boardPos[0] * scaleFactor, y: boardPos[1] * scaleFactor }
-  // }, [boardPos, scaleFactor])
 
   const onBoardRefresh = useCallback((socketGameObjects: Record<UUID, SocketGameObject>) => {
     console.log('board refresh')
