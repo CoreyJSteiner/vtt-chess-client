@@ -5,7 +5,6 @@ import { Assets, Container, Polygon, Sprite, Texture } from 'pixi.js'
 import { createPolygonHitbox } from '../Utils'
 extend({ Sprite, Texture, Container })
 
-
 type GameObjectProps = {
     id: UUID,
     textureBasePath: string,
@@ -47,7 +46,6 @@ const GameObject: React.FC<GameObjectProps> = ({ id, textureBasePath, textureOve
                 await createPolygonHitbox(fileName)
             )
             setHitBox(polygonOutline)
-            // gameObjectRef.current?.addChild(polygonOutline)
         }
 
         let hitBoxTexturePath = textureBasePath
@@ -59,17 +57,11 @@ const GameObject: React.FC<GameObjectProps> = ({ id, textureBasePath, textureOve
 
 
     useEffect(() => {
-        const handleDrag = (): void => {
-            console.log(`Is draggable ${id}: ${draggable}`)
-            console.dir(hitbox, { depth: null })
-            const details = {
-                id: id,
-                sprite: gameObjectRef,
-                mask: baseRef
-            }
-            console.dir(details, { depth: null })
-
+        const handleDragObj = (): void => {
             setDragging(true)
+        }
+        const handleRelease = (): void => {
+            setDragging(false)
         }
 
         const gameObjectHitbox = gameObjectRef.current
@@ -77,14 +69,16 @@ const GameObject: React.FC<GameObjectProps> = ({ id, textureBasePath, textureOve
         if (gameObjectHitbox && draggable && hitbox) {
             gameObjectHitbox.eventMode = 'static'
             gameObjectHitbox.cursor = 'pointer'
-            console.dir(hitbox, { depth: null })
             gameObjectHitbox.hitArea = hitbox
-            gameObjectHitbox.on('pointerdown', handleDrag)
+            gameObjectHitbox.on('pointerdown', handleDragObj)
+            gameObjectHitbox.on('pointerup', handleRelease)
+            gameObjectHitbox.on('pointerleave', handleRelease)
         }
 
         return (): void => {
             if (gameObjectHitbox) {
-                gameObjectHitbox.off('pointerdown', handleDrag)
+                gameObjectHitbox.off('pointerdown', handleDragObj)
+                gameObjectHitbox.off('pointerup', handleRelease)
             }
         }
     }, [id, draggable, hitbox])
