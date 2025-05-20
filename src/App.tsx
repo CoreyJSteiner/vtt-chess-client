@@ -22,12 +22,10 @@ const App: React.FC = () => {
   }, [joined, reqRefreshChat])
 
   const onMessageIn = (message: string): void => {
-    console.log(message)
     setMessages(prev => [...prev, message])
   }
 
   const onRefreshChat = (messages: Array<string>): void => {
-    console.log(messages)
     setMessages(messages)
   }
 
@@ -48,7 +46,6 @@ const App: React.FC = () => {
   useEffect(() => {
     const clearIntervalOnReconnect = (): void => {
       if (reconnectIntervalRef.current) {
-        console.log('blurg')
         clearInterval(reconnectIntervalRef.current)
         socket.emit('username set', user)
         socket.emit('room set', room)
