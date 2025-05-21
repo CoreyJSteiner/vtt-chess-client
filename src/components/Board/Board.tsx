@@ -1,10 +1,9 @@
 import './Board.css'
+import GameObject from '../GameObject'
 import { socket } from '../../socket'
 import type { UUID } from 'crypto'
-import {
-  Application,
-  extend,
-} from '@pixi/react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
+import { Application, extend, } from '@pixi/react'
 import {
   Container,
   Graphics,
@@ -12,8 +11,7 @@ import {
   Texture,
   Assets
 } from 'pixi.js'
-import { useEffect, useState, useMemo, useCallback } from 'react'
-import GameObject from '../GameObject'
+
 
 type GameObjectProps = {
   id: UUID,
@@ -82,7 +80,11 @@ const Board: React.FC = () => {
   }, [scaleFactor])
 
   useEffect(() => {
-    setBoardPos((prev: Array<number>) => [prev[0], Math.floor(windowDimensions.height / 4)])
+    // setBoardPos([0, 0])
+    setBoardPos((prev: Array<number>) => [
+      prev[0],
+      Math.floor(windowDimensions.height / 7)
+    ])
   }, [windowDimensions])
 
   useEffect(() => {
