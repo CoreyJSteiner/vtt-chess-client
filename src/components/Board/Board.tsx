@@ -126,8 +126,8 @@ const Board: React.FC = () => {
           <GameObject
             id={crypto.randomUUID()}
             textureBasePath={'assets/board-generic.png'}
-            x={boardPos[0]}
-            y={boardPos[1]}
+            initX={boardPos[0]}
+            initY={boardPos[1]}
             zOverride={-9999}
             scale={scaleFactor}
           />
@@ -140,8 +140,9 @@ const Board: React.FC = () => {
               key={gameObj.id}
               textureBasePath={gameObj.textureBasePath}
               textureOverPath={gameObj.textureOverPath}
-              x={boardPos[0] + (gameObj.x * scaleFactor)}
-              y={boardPos[1] + (gameObj.y * scaleFactor)}
+              initX={boardPos[0] + (gameObj.x * scaleFactor)}
+              initY={boardPos[1] + (gameObj.y * scaleFactor)}
+              // anchor={0.5}
               scale={scaleFactor}
               draggable={true}
             />

@@ -1,7 +1,7 @@
 import type { UUID } from 'crypto'
 import { useEffect, useRef, useState } from 'react'
 import { extend } from '@pixi/react'
-import { Assets, Container, Polygon, Sprite, Texture } from 'pixi.js'
+import { Assets, Container, FederatedMouseEvent, Polygon, Sprite, Texture } from 'pixi.js'
 import { createPolygonHitbox } from '../Utils'
 extend({ Sprite, Texture, Container })
 
@@ -9,17 +9,17 @@ type GameObjectProps = {
     id: UUID,
     textureBasePath: string,
     textureOverPath?: string,
-    x: number,
-    y: number,
+    initX: number,
+    initY: number,
     zOverride?: number,
     anchor?: number,
     scale: number,
     draggable?: boolean
 }
 
-const GameObject: React.FC<GameObjectProps> = ({ id, textureBasePath, textureOverPath, x, y, zOverride, anchor, scale, draggable = false }) => {
-    const [xDiff, setXDiff] = useState<number>(0)
-    const [yDiff, setYDiff] = useState<number>(0)
+const GameObject: React.FC<GameObjectProps> = ({ id, textureBasePath, textureOverPath, initX, initY, zOverride, anchor, scale, draggable = false }) => {
+    const [activeX, setActiveX] = useState<number>(0)
+    const [activeY, setActiveY] = useState<number>(0)
     const [dragging, setDragging] = useState<boolean>(false)
     const [baseTexture, setBaseTexture] = useState<Texture>()
     const [overTexture, setOverTexture] = useState<Texture>()
@@ -27,6 +27,42 @@ const GameObject: React.FC<GameObjectProps> = ({ id, textureBasePath, textureOve
     const gameObjectRef = useRef<Container>(null)
     const overRef = useRef<Sprite>(null)
     const baseRef = useRef<Sprite>(null)
+
+    useEffect(() => {
+        const moveFunction = (e: FederatedMouseEvent): void => {
+            if (!dragging) return
+            console.log(e.movementX, e.movementY)
+            console.log(e.x, e.y)
+            console.log(e.screenX, e.screenY)
+            console.log(activeX, activeY)
+            setActiveX((prev: number) => Math.floor((prev + e.movementX)))
+            setActiveY((prev: number) => Math.floor((prev + e.movementY)))
+        }
+
+        const correctPosFunction = (e: FederatedMouseEvent): void => {
+            if (!dragging) return
+            console.log(e.x, e.y)
+            setActiveX(e.x)
+            setActiveY(e.y)
+        }
+
+        const draggedObject = gameObjectRef.current
+
+        if (dragging) {
+            draggedObject?.on('pointermove', moveFunction)
+            draggedObject?.on('pointerleave', correctPosFunction)
+        } else {
+            draggedObject?.off('pointermove', moveFunction)
+            draggedObject?.off('pointerleave', correctPosFunction)
+        }
+
+        return (): void => {
+            if (draggedObject) {
+                draggedObject.off('pointermove', moveFunction)
+                draggedObject?.off('pointerleave', correctPosFunction)
+            }
+        }
+    }, [dragging])
 
     useEffect(() => {
         const loadTexture = async (fileName: string, setTexture: (texture: Texture) => void): Promise<void> => {
@@ -57,10 +93,11 @@ const GameObject: React.FC<GameObjectProps> = ({ id, textureBasePath, textureOve
 
 
     useEffect(() => {
-        const handleDragObj = (): void => {
+        const handlePickUp = (): void => {
             setDragging(true)
         }
         const handleRelease = (): void => {
+            console.log('release')
             setDragging(false)
         }
 
@@ -70,45 +107,44 @@ const GameObject: React.FC<GameObjectProps> = ({ id, textureBasePath, textureOve
             gameObjectHitbox.eventMode = 'static'
             gameObjectHitbox.cursor = 'pointer'
             gameObjectHitbox.hitArea = hitbox
-            gameObjectHitbox.on('pointerdown', handleDragObj)
+            gameObjectHitbox.on('pointerdown', handlePickUp)
             gameObjectHitbox.on('pointerup', handleRelease)
-            gameObjectHitbox.on('pointerleave', handleRelease)
         }
 
         return (): void => {
             if (gameObjectHitbox) {
-                gameObjectHitbox.off('pointerdown', handleDragObj)
+                gameObjectHitbox.off('pointerdown', handlePickUp)
                 gameObjectHitbox.off('pointerup', handleRelease)
             }
         }
     }, [id, draggable, hitbox])
 
     useEffect(() => {
-        setXDiff(0)
-    }, [x])
+        setActiveX(initX)
+    }, [initX])
 
     useEffect(() => {
-        setYDiff(0)
-    }, [y])
+        setActiveY(initY)
+    }, [initY])
 
     return (
         <pixiContainer
             key={id}
             ref={gameObjectRef}
-            x={x + xDiff}
-            y={y + yDiff}
-            zIndex={zOverride ? zOverride : y}
+            x={activeX}
+            y={activeY}
+            zIndex={zOverride ? zOverride : activeY}
             anchor={anchor}
             scale={scale}>
             {baseTexture && <pixiSprite
                 ref={baseRef}
                 texture={baseTexture}
-                anchor={anchor}
+            // anchor={anchor}
             >
                 {overTexture && <pixiSprite
                     ref={overRef}
                     texture={overTexture}
-                    anchor={anchor}
+                    // anchor={anchor}
                     y={dragging ? -5 : 0}
                 />}
             </pixiSprite>}
